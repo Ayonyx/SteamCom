@@ -31,3 +31,12 @@ I've tried to remain very modular:
 
 - Achievements
  * coming soon
+
+- Cache
+ * the caching system is pretty crude, it just requires a 
+ writable directory named cache aka.
+
+ mkdir cache
+ chmod a+w cache
+
+ profit.
