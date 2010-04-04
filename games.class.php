@@ -2,6 +2,14 @@
 
 class SteamGames {
 	
+	/* Contructor:
+		expects:
+			* games - an array of game objects
+		
+		returnns:
+			* void
+			
+	*/	
 	function __construct($games)
 	{
 		$this->gameList = $games;

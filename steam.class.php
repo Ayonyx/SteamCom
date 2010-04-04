@@ -3,6 +3,7 @@
 include('player.class.php');
 include('games.class.php');
 include('game.class.php');
+include('cache.class.php');
 
 function sort_games($one, $two) {
 	return($one->GetTotalTime() < $two->GetTotalTime());
@@ -15,7 +16,8 @@ class SteamCom {
 	private $username;
 	private $profilexml, $gamesxml, $friendsxml;
 	private $gamesList = array();
-	
+	private $cache;
+
 	public  $player;
 	public  $games;
 
@@ -27,11 +29,20 @@ class SteamCom {
 			$this->idnum = false;
 		}
 		
+		$this->cache = new SteamCache;	
+	
 		$this->username = $username;
-		$this->GetProfileData();
-		$this->GetGamesData();
-		$this->player = new Player($this->data);
-		$this->games  = new SteamGames($this->gameList);
+		$data;
+		if(!$this->cache->getPlayer($this->username, $data, 2 * 60)) {
+			$this->GetProfileData();
+			$this->GetGamesData();
+			$this->player = new Player($this->data);
+			$this->games  = new SteamGames($this->gameList);
+			$this->cache->savePlayer($this->player, $this->games);
+		} else {
+			$this->player = $data['player'];
+			$this->games  = $data['games'];
+		}
 	}
 
 	public function GetProfileData()
@@ -76,7 +87,7 @@ class SteamCom {
 	private function ParseProfileData()
 	{
 		$this->data['steamID'] 			= (string)$this->profilexml->steamID;
-		$this->data['steamID64'] 		= $this->profilexml->steamID64[0];
+		$this->data['steamID64'] 		= (string)$this->profilexml->steamID64;
 		$this->data['onlineState'] 		= (string)$this->profilexml->onlineState;
 		$this->data['stateMessage'] 	= (string)$this->profilexml->stateMessage;
 		$this->data['avatarIcon']		= (string)$this->profilexml->avatarIcon;
