@@ -22,6 +22,9 @@
 	
 			$topgame = $profile->games->GetGame(0);
 			echo "Top Played: <a href='".$topgame->GetLink()."'>".$topgame->GetName()."</a> - ".$topgame->GetTotalTime()." hrs";
+			echo "<br/>";
+	
+			echo "Friends: ".$profile->friends->numFriends();
 		} else {
 			echo "Private Profile";
 		}

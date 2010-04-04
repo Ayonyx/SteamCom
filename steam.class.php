@@ -3,6 +3,7 @@
 include('player.class.php');
 include('games.class.php');
 include('game.class.php');
+include('friends.class.php');
 include('cache.class.php');
 
 function sort_games($one, $two) {
@@ -20,6 +21,7 @@ class SteamCom {
 
 	public  $player;
 	public  $games;
+	public  $friends;
 
 	function __construct($username)
 	{
@@ -32,16 +34,25 @@ class SteamCom {
 		$this->cache = new SteamCache;	
 	
 		$this->username = $username;
-		$data;
 		if(!$this->cache->getPlayer($this->username, $data, 2 * 60)) {
 			$this->GetProfileData();
-			$this->GetGamesData();
-			$this->player = new Player($this->data);
-			$this->games  = new SteamGames($this->gameList);
-			$this->cache->savePlayer($this->player, $this->games);
+			$this->player	= new Player($this->data);
+				
+			if($this->player->isPublic()) {
+				$this->GetGamesData();
+				$this->GetFriendsData();
+				$this->games  	= new SteamGames($this->gameList);
+				$this->friends 	= new Friends($this->friendsxml);
+			} else {
+				$this->games 	= NULL;
+				$this->friends	= NULL;
+			}
+
+			$this->cache->savePlayer($this->player, $this->games, $this->friends);
 		} else {
-			$this->player = $data['player'];
-			$this->games  = $data['games'];
+			$this->player 	= $data['player'];
+			$this->games 	= $data['games'];
+			$this->friends 	= $data['friends'];
 		}
 	}
 
@@ -81,7 +92,17 @@ class SteamCom {
 	
 	public function GetFriendsData()
 	{
-		$this->friendsxml = simplexml_load_file('http://'.$this->host.'/id/'.$this->username.'/friends/?xml=1');
+		$url  = 'http://';
+		$url .= $this->host;
+		if($this->idnum) {
+			$url .= '/profiles/';
+		} else {
+			$url .= '/id/';
+		}
+		$url .= $this->username;
+		$url .= '/friends/?xml=1'; 
+		
+		$this->friendsxml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
 	}
 	
 	private function ParseProfileData()

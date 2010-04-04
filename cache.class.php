@@ -10,11 +10,11 @@ class SteamCache {
 		purpose:
 			* saves a serialized file with needed information
 	*/	
-	public function savePlayer($player, $games)
+	public function savePlayer($player, $games, $friends)
 	{
 		$filename = $this->getFilename($player->GetId());
 		
-		$information = $this->SaveData($player, $games);
+		$information = $this->SaveData($player, $games, $friends);
 
 		$this->WriteFile($filename, $information);
 	}
@@ -65,10 +65,11 @@ class SteamCache {
 		purpose:
 			* put objects into an array for storage
 	*/
-	private function SaveData($player, $games)
+	private function SaveData($player, $games, $friends)
 	{
 		$data['player'] = $player;
 		$data['games']  = $games;
+		$data['friends'] = $friends;
 
 		return serialize($data);
 	}
