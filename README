@@ -1,42 +1,32 @@
 ------------------------------------------------------
 		** [SteamCom]munity Class ** 
 ------------------------------------------------------
+class SteamCom basic implementation of a single player + caching
 
-very early in development, only around 300 lines of
-code.
+class SteamPlayer
+* Name
+* SteamID
+* Avatars
+* Join Date
+* Steam Rating
+* 2 week time
 
-I've tried to remain very modular:
+class SteamGames
+* Hours Total
+* Total Games
+* class Game
+	* Name
+	* appID
+	* Logo
+	* Steam Store 
+	* 2wk hours
+	* Total hours
 
-- Profile
-	-> Name
-	-> ID
-	-> Avatars
-	-> Join Date
-	-> Steam Rating
-	-> 2 week time
+class SteamFriends
+* array of steamIds
 
-- Games
-	-> Hours Total
-	-> Total Games
-	-> Game List [Object]
-		* Name
-		* appID
-		* Logo
-		* Steam Store 
-		* 2wk hours
-		* Total hours
+class SteamAchievements
+* coming soon
 
-- Friends
- * coming soon
-
-- Achievements
- * coming soon
-
-- Cache
- * the caching system is pretty crude, it just requires a 
- writable directory named cache aka.
-
- mkdir cache
- chmod a+w cache
-
- profit.
+class SteamCache
+* writes a serialized file to /cache/ directory that is re-written after x amount of time.
