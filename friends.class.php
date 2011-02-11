@@ -1,32 +1,40 @@
 <?php
+/*  Friends
+ *
+ *  The friends object is used to parse information on a player's friends list.
+ */
+class Friends 
+{
+    private $m_friendsList;
 
-class Friends {
+    function __construct($xmldata)
+    {
+        $this->ParseFriends($xmldata);
+    }
 
-	function __construct($xmldata) 
-	{
-		$this->friendslist = $this->parseFriends($xmldata);	
-	}
+    private function ParseFriends($xmldata)
+    {
+        foreach($xmldata->friends->children() as $friend)
+        {
+            $t->ID = (string)$friend;
+            $this->m_friendsList[] = $t;
+        }
+    }
 
+    /* GetNumFriends()
+     * @use: returns number of friends;
+     * --------------
+     * @returns: int
+     */
+    public function GetNumFriends()
+    {
+        return count($this->m_friendsList);
+    }
 
-	private function parseFriends($xmldata)
-	{
-		foreach($xmldata->friends->children() as $friend) {
-			$t->ID = (string)$friend;
-			
-			$this->friendCount++;
-			$this->friendslist[] = $t; 
-		}
-	}
-
-	public function numFriends()
-	{
-		return $this->friendCount;
-	}
-
-	public function getFriendsList()
-	{
-		return $this->friendslist;
-	}
+    public function GetFriendsList()
+    {
+        return $this->m_friendsList;
+    }
 }
 
 ?>

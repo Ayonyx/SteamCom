@@ -6,128 +6,123 @@ include('game.class.php');
 include('friends.class.php');
 include('cache.class.php');
 
-function sort_games($one, $two) {
-	return($one->GetTotalTime() < $two->GetTotalTime());
+function sort_games($one, $two)
+{
+    return($one->GetTotalTime() < $two->GetTotalTime());
 }
 
-class SteamCom {
-	private $host = "steamcommunity.com";
-	private $data = array();
-	private $idnum;
-	private $username;
-	private $profilexml, $gamesxml, $friendsxml;
-	private $gamesList = array();
-	private $cache;
+class SteamCom
+{
+    private $m_szHost = "steamcommunity.com";
+    private $m_aData = array();
+    private $m_bId;
+    private $m_szUsername;
+    private $profilexml, $gamesxml, $friendsxml;
+    private $m_gamesList = array();
+    private $m_cache;
 
-	public  $player;
-	public  $games;
-	public  $friends;
+    public  $m_player;
+    public  $m_games;
+    public  $m_friends;
 
-	function __construct($username)
-	{
-		if(is_numeric($username)) {
-			$this->idnum = true;
-		} else {
-			$this->idnum = false;
-		}
-		
-		$this->cache = new SteamCache;	
-	
-		$this->username = $username;
-		if(!$this->cache->getPlayer($this->username, $data, 2 * 60)) {
-			$this->GetProfileData();
-			$this->player	= new Player($this->data);
-				
-			if($this->player->isPublic()) {
-				$this->GetGamesData();
-				$this->GetFriendsData();
-				$this->games  	= new SteamGames($this->gameList);
-				$this->friends 	= new Friends($this->friendsxml);
-			} else {
-				$this->games 	= NULL;
-				$this->friends	= NULL;
-			}
+    function __construct($username)
+    {
+        $this->m_bId = is_numeric($username);
 
-			$this->cache->savePlayer($this->player, $this->games, $this->friends);
-		} else {
-			$this->player 	= $data['player'];
-			$this->games 	= $data['games'];
-			$this->friends 	= $data['friends'];
-		}
-	}
+        $this->m_cache = new SteamCache;
 
-	public function GetProfileData()
-	{
-		$url  = 'http://';
-		$url .= $this->host;
-		if($this->idnum) {
-			$url .= '/profiles/';
-		} else {
-			$url .= '/id/';
-		}
-		$url .= $this->username;
-		$url .= '/?xml=1';
-			
-		$this->profilexml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);		
-			
-		$this->ParseProfileData();
-	}
+        $this->m_szUsername = $username;
 
-	public function GetGamesData()
-	{
-		$url  = 'http://';
-		$url .= $this->host;
-		if($this->idnum) {
-			$url .= '/profiles/';
-		} else {
-			$url .= '/id/';
-		}
-		$url .= $this->username;
-		$url .= '/games/?xml=1';
+        if(!$this->m_cache->GetPlayer($this->m_szUsername, $data, 2 * 60))
+        {
+            $this->m_player = $this->GetProfileData();
 
-		$this->gamesxml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
-	
-		$this->ParseGamesData();
-	}
-	
-	public function GetFriendsData()
-	{
-		$url  = 'http://';
-		$url .= $this->host;
-		if($this->idnum) {
-			$url .= '/profiles/';
-		} else {
-			$url .= '/id/';
-		}
-		$url .= $this->username;
-		$url .= '/friends/?xml=1'; 
-		
-		$this->friendsxml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
-	}
-	
-	private function ParseProfileData()
-	{
-		$this->data['steamID'] 			= (string)$this->profilexml->steamID;
-		$this->data['steamID64'] 		= (string)$this->profilexml->steamID64;
-		$this->data['onlineState'] 		= (string)$this->profilexml->onlineState;
-		$this->data['stateMessage'] 	= (string)$this->profilexml->stateMessage;
-		$this->data['avatarIcon']		= (string)$this->profilexml->avatarIcon;
-		$this->data['memberSince']		= (string)$this->profilexml->memberSince;
-		$this->data['steamRating'] 		= (float)$this->profilexml->steamRating;
-		$this->data['hoursPlayed2Wk']	= (float)$this->profilexml->hoursPlayed2Wk;
-		$this->data['privacyState'] 	= (string)$this->profilexml->privacyState;
-	}
+            if($this->m_player->IsPublic())
+            {
+                $this->GetGamesData();
+                $this->GetFriendsData();
+                $this->m_games  	= new SteamGames($this->m_gamesList);
+                $this->m_friends 	= new Friends($this->friendsxml);
+            }
+            else
+            {
+                $this->m_games          = NULL;
+                $this->m_friends	= NULL;
+            }
 
-	private function ParseGamesData()
-	{
-		if((string)$this->profilexml->privacyState == "public") {
-			foreach($this->gamesxml->games->children() as $game) {
-				$t = new Game((string)$game->name, (int)$game->appID, (string)$game->logo, (string)$game->storeLink, (float)$game->hoursLast2Weeks, (float)$game->hoursOnRecord);
-				$this->gameList[] = $t;
-			}
+            $this->m_cache->SavePlayer($this->m_player, $this->m_games, $this->m_friends);
+        }
+        else
+        {
+            $this->m_player     = $data['player'];
+            $this->m_games      = $data['games'];
+            $this->m_friends    = $data['friends'];
+        }
+    }
 
-			usort($this->gameList, "sort_games");
-		}
-	}
+    public function GetProfileData()
+    {
+        $url = sprintf("http://%s/%s/%s/?xml=1", $this->m_szHost,
+                       $this->m_bId ? "profiles" : "id", $this->m_szUsername);
+
+        $this->profilexml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $this->ParseProfileData();
+        return new Player($this->m_aData);
+    }
+
+    public function GetGamesData()
+    {
+        $url = sprintf("http://%s/%s/%s/games/?xml=1", $this->m_szHost,
+                        $this->m_bId ? "profiles" : "id", $this->m_szUsername);
+
+        $this->gamesxml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $this->ParseGamesData();
+    }
+
+    public function GetFriendsData()
+    {
+        $url = sprintf("http://%s/%s/%s//friends/?xml=1", $this->m_szHost,
+                        $this->m_bId ? "profiles" : "id", $this->m_szUsername);
+
+        $this->friendsxml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
+    }
+
+    private function ParseProfileData()
+    {
+        $this->m_aData['steamID']           = (string)$this->profilexml->steamID;
+        $this->m_aData['steamID64']         = (string)$this->profilexml->steamID64;
+        $this->m_aData['onlineState']       = (string)$this->profilexml->onlineState;
+        $this->m_aData['stateMessage']      = (string)$this->profilexml->stateMessage;
+        $this->m_aData['avatarIcon']        = (string)$this->profilexml->avatarIcon;
+        $this->m_aData['memberSince']       = (string)$this->profilexml->memberSince;
+        $this->m_aData['steamRating']       = (float)$this->profilexml->steamRating;
+        $this->m_aData['hoursPlayed2Wk']    = (float)$this->profilexml->hoursPlayed2Wk;
+        $this->m_aData['privacyState']      = (string)$this->profilexml->privacyState;
+        $this->m_aData['headline']          = (string)$this->profilexml->headline;
+        $this->m_aData['location']          = (string)$this->profilexml->location;
+        $this->m_aData['summary']           = (string)$this->profilexml->summary;
+        $this->m_aData['realname']          = (string)$this->profilexml->realname;
+    }
+
+    private function ParseGamesData()
+    {
+        if((string)$this->profilexml->privacyState == PublicStates::P_PUBLIC)
+        {
+            foreach($this->gamesxml->games->children() as $game)
+            {
+                $t = new Game((string)$game->name,
+                              (int)$game->appID,
+                              (string)$game->logo,
+                              (string)$game->storeLink,
+                              (float)$game->hoursLast2Weeks,
+                              (float)$game->hoursOnRecord);
+                $this->m_gamesList[] = $t;
+            }
+
+            usort($this->m_gamesList, "sort_games");
+        }
+    }
 }
 ?>

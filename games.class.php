@@ -1,48 +1,45 @@
 <?php
 
-class SteamGames {
-	
-	/* Contructor:
-		expects:
-			* games - an array of game objects
-		
-		returnns:
-			* void
-			
-	*/	
-	function __construct($games)
-	{
-		$this->gameList = $games;
-		$this->ParseGames();
-	}	
+class SteamGames
+{
+    private $m_gameList;
+    private $m_nGamesTotal;
+    private $m_nHoursTotal;
 
-	private function ParseGames()
-	{
-		foreach($this->gameList as $game) {
-			$this->numGames++;
-			$this->numHours += $game->GetTotalTime();
-		}
-	}
+    function __construct($games)
+    {
+        $this->m_gameList = $games;
+        $this->ParseGames();
+    }
 
-	public function GetNumGames()
-	{
-		return $this->numGames;
-	}
+    private function ParseGames()
+    {
+        foreach($this->m_gameList as $game)
+        {
+            $this->m_nGamesTotal++;
+            $this->m_nHoursTotal += (float)$game->GetTotalTime();
+        }
+    }
 
-	public function GetHoursTotal()
-	{
-		return $this->numHours;
-	}
+    public function GetNumGames()
+    {
+        return $this->m_nGamesTotal;
+    }
 
-	public function GetGameList()
-	{
-		return $this->gameList;
-	}
+    public function GetHoursTotal()
+    {
+        return $this->m_nHoursTotal;
+    }
 
-	public function GetGame($id)
-	{
-		return $this->gameList[$id];
-	}
+    public function GetGameList()
+    {
+        return $this->m_gameList;
+    }
+
+    public function GetGame($id)
+    {
+        return $this->m_gameList[$id];
+    }
 }
 	
 ?>

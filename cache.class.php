@@ -1,97 +1,98 @@
 <?php
 
-class SteamCache {
-	/* function savePlayer:
-		expects:
-			* player - player object
-			* games  - games object
-		returns:
-			* void
-		purpose:
-			* saves a serialized file with needed information
-	*/	
-	public function savePlayer($player, $games, $friends)
+class SteamCache
+{
+	/* function SavePlayer($player, $games, $friends)
+         * @use: save serilized information to cache file
+         * --------------
+         * @parameter: $player - player information
+         * @parameter: $games - player's game information
+         * @parameter: $friends - player's friends
+         * --------------
+         * @returns: void
+         */
+	public function SavePlayer($player, $games, $friends)
 	{
-		$filename = $this->getFilename($player->GetId());
-		
-		$information = $this->SaveData($player, $games, $friends);
+            $filename = $this->GetFilename($player->GetId());
 
-		$this->WriteFile($filename, $information);
+            $information = $this->SaveData($player, $games, $friends);
+
+            $this->WriteFile($filename, $information);
 	}
 
-	/* function getPlayer
-		expects:
-			* playerid - steam id
-			* data - variable to store unserialized data
-			* age - how long should files be read from before overwrite
-		returns:
-			* boolean
-		purpose:
-			* retrieve and unserialize cached information
-	*/
-	public function getPlayer($playerid, &$data, $age)
+	/* function GetPlayer($playerid, &$data, $age)
+         * @use: retrieve and unserialize cached information younger than $age.
+         * --------------
+         * @parameter: playerid - steam id
+         * @parameter: data - by reference to store player data.
+         * @age:       age before we overwrite.
+         * --------------
+         * @returns: bool
+         */
+	public function GetPlayer($playerid, &$data, $age)
 	{
-		$filename = $this->getFilename($playerid);
-		if(!file_exists($filename) || !is_readable($filename)) return FALSE;
+            $filename = $this->GetFilename($playerid);
+            if(!file_exists($filename) || !is_readable($filename)) return FALSE;
 
-		if(!((time() - filemtime($filename)) > $age)) {
-			$temp = file_get_contents($filename);
-			$data = unserialize($temp);
-			return TRUE;
-		} else {
-			return FALSE;
-		}
-	}
-	
-	/* function getFilename
-		expects:
-			* playerid - steam id
-		returns:
-			* filepath
-		purpose: 
-			* get file path for playerid
-	*/
-	private function getFilename($playerid) 
-	{
-		return './cache/'.$playerid;
+            if(!((time() - filemtime($filename)) > $age))
+            {
+                $temp = file_get_contents($filename);
+                $data = unserialize($temp);
+                return TRUE;
+            }
+            else
+            {
+                return FALSE;
+            }
 	}
 	
-	/* function SaveData
-		expects:
-			* player - player object
-			* games  - game object
-		returns:
-			* serialized array
-		purpose:
-			* put objects into an array for storage
+	/* function getFilename($playerid)
+         * @use: get file path for player cache
+         * --------------
+         * @parameter: playerid - steam id.
+         * --------------
+         * @returns: string
 	*/
+	private function GetFilename($playerid)
+	{
+            return './cache/'.$playerid;
+	}
+	
+	/* function SaveData($player, $games, $friends)
+         * @use: creates an array and serializes information for storage.
+         * --------------
+         * @parameter: player - player object
+         * @parameter: games - game object
+         * @parameter: friends - friend object
+         * --------------
+         * @returns: serialized array
+         */
 	private function SaveData($player, $games, $friends)
 	{
-		$data['player'] = $player;
-		$data['games']  = $games;
-		$data['friends'] = $friends;
+            $data['player'] = $player;
+            $data['games']  = $games;
+            $data['friends'] = $friends;
 
-		return serialize($data);
+            return serialize($data);
 	}
 
-	/* function WriteFile
-		expects:
-			* filename - path to the file
-			* information - serialized information to write to the file
-		returns:
-			* void
-		purpose:
-			* create cache file
+	/* function WriteFile($filename, $information)
+         * @use: write serialized $information to $filename
+         * --------------
+         * @parameter: filename
+         * @parameter: information - serialized array
+         * --------------
+         * @returns: void
 	*/
 	private function WriteFile($filename, $information)
 	{
-		ob_start();
-		
-		$file = fopen($filename, 'w');
-		fwrite($file, $information);
+            ob_start();
 
-		fclose($file);
-		ob_end_flush();
+            $file = fopen($filename, 'w');
+            fwrite($file, $information);
+
+            fclose($file);
+            ob_end_flush();
 	}
 }
 

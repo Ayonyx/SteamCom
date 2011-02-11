@@ -1,135 +1,146 @@
 <?php
 
-class Player {
-    private $name, $id;
-    private $state, $statemsg;
-    private $avatars = array();
-    private $memberdate;
-    private $rating, $hours2wk;
-	private $public;
+class AvatarSize
+{
+    const SMALL     = 0;
+    const MEDIUM    = 1;
+    const LARGE     = 2;
+};
 
-	/* Constructor Paramaters:
-		data :
-			* steamID 			- the player's name
-			* steamID64 		- the player's 64bit numerical identifiers
-			* onlineState		- the players online or offline status
-			* stateMessage		- the status message for the player's profile
-			* privacyState		- is the profile public or private
-			* avatarIcon		- a url to the players avatar
-			* memberSince		- the date the player joined steam
-			* steamRating		- the players rating on steam
-			* hoursPlayed2Wk	- the number of hours the player played in the last two weeks
-	*/
-	function __construct($data) //array
+class OnlineStates
+{
+    const ONLINE    = 0;
+    const OFFLINE   = 1;
+    const AWAY      = 2;
+};
+
+class PublicStates
+{
+    const P_PUBLIC = "public";
+    const P_PRIVATE = "private";
+};
+
+class Player
+{
+    private $m_szName;
+    private $m_nId;
+    private $m_szState;
+    private $m_szStateMsg;
+    private $m_aAvatars = array();
+    private $m_szMemberdate;
+    private $m_nRating;
+    private $m_nHours2wk;
+    private $m_bPublic;
+    private $m_szHeadline;
+    private $m_szLocation;
+    private $m_szSumamry;
+    private $m_szRealname;
+
+    function __construct($data)
     {
-        if(is_array($data)) {
-            $this->name         = $data['steamID'];
-            $this->id           = $data['steamID64'];
-            $this->state        = $data['onlineState'];
-            $this->statemsg     = $data['stateMessage'];
-			$this->public		= $data['privacyState'];
-
+        if(is_array($data))
+        {
+            $this->m_szName         = $data['steamID'];
+            $this->m_nId            = $data['steamID64'];
+            $this->m_szState        = $data['onlineState'];
+            $this->m_szStateMsg     = $data['stateMessage'];
+            $this->m_bPublic        = ($data['privacyState'] != PublicStates::P_PRIVATE);
             $this->SetAvatar($data['avatarIcon']);
-
-            $this->memberdate   = $data['memberSince'];
-            $this->rating       = $data['steamRating'];
-            $this->hours2wk     = $data['hoursPlayed2Wk'];
-    	}
-	}
+            $this->m_szMemberdate   = $data['memberSince'];
+            $this->m_nRating        = $data['steamRating'];
+            $this->m_nHours2wk      = $data['hoursPlayed2Wk'];
+            $this->m_szHeadline     = $data['headline'];
+            $this->m_szLocation     = $data['location'];
+            $this->m_szSumamry      = $data['summary'];
+            $this->m_szRealname     = $data['realname'];
+        }
+    }
 	
-	/* Function: SetAvatar
-		expects:
-			* url - url to the players avatar.
-
-		returns:
-			* void
-
-		purpose:
-			* SetAvatar takes the simple avatar url from the
-			  constructor and adds the other two sizes of the
-			  image to the player object avatars array.
-	*/
     private function SetAvatar($url)
     {
         $length = strlen($url);
         $base = substr($url, 0, $length-4);
-        $this->avatars['small'] = $url;
-        $this->avatars['medium'] = $base.'_medium.jpg';
-        $this->avatars['large'] = $base.'_full.jpg';
+        $this->m_aAvatars[AvatarSize::SMALL]    = $url;
+        $this->m_aAvatars[AvatarSize::MEDIUM]   = $base.'_medium.jpg';
+        $this->m_aAvatars[AvatarSize::LARGE]    = $base.'_full.jpg';
     }
 	
-	/* Function: GetAvatar
-		expects:
-			* size - small, medium, large
-
-		returns:
-			* url - web address
-
-		purpose:
-			* GetAvatar returns the web address of what ever
-			  size avatar the user calls the function with.
-	*/
     public function GetAvatar($size)
     {
-        switch($size) {
-            case 'large':
-                return($this->avatars['large']);
-                break;
-            case 'medium':
-                return($this->avatars['medium']);
-                break;
-            case 'small':
-            default:
-                return($this->avatars['small']);
-        }
+        return $this->m_aAvatars[$size];
     }
 	
-	//returns player name
+    //returns string
     public function GetName()
     {
-        return($this->name);
+        return $this->m_szName;
     }
 	
-	//returns player id
+    //returns string (int64)
     public function GetId()
     {
-        return($this->id);
+        return $this->m_nId;
     }
 
-	//returns online / offline
+    //returns string
     public function GetState()
-	{ 
-		return($this->state);
+    {
+        return $this->m_szState;
     }
 
-	//returns message related to state
+    //returns string
     public function GetStateMsg()
     {
-        return($this->statemsg);
+        return $this->m_szStateMsg;
     }
 
-	//returns the date the player joined steam
+    //returns timestamp
     public function GetJoinDate()
     {
-        return($this->memberdate);
+        return $this->m_szMemberdate;
     }
 	
-	//returns the 2k play time for player
+    //returns float
     public function GetHours2Wk()
     {
-        return($this->hours2wk);
+        return $this->m_nHours2wk;
     }
 
-	//returns boolean for if the profile is public
-	public function isPublic()
-	{
-		if($this->public == "friendsonly") {
-			return FALSE;
-		} else {
-			return TRUE;
-		}
-	}
+    //returns boolean
+    public function IsPublic()
+    {
+        return $this->m_bPublic;
+    }
 
+    //returns float
+    public function GetRating()
+    {
+        return $this->m_nRating;
+    }
+
+    //returns string
+    public function GetHeadline()
+    {
+        return $this->m_szHeadline;
+    }
+
+    //returns string
+    public function GetLocation()
+    {
+        return $this->m_szLocation;
+    }
+
+    //returns string
+    public function GetSummary()
+    {
+        return $this->m_szSumamry;
+    }
+
+    //returns string
+    public function GetRealname()
+    {
+        return $this->m_szRealname;
+    }
 }
 
 ?>
