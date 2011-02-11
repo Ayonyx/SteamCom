@@ -52,7 +52,7 @@ class SteamPlayer
         $data = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
 
         $this->m_szName         = (string)$data->steamID;
-        $this->m_nId            = (double)$data->steamID64;
+        $this->m_nId            = (string)$data->steamID64;
         $this->m_szState        = (string)$data->onlineState;
         $this->m_szStateMsg     = (string)$data->stateMessage;
         $this->SetAvatar($data->avatarIcon);

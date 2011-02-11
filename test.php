@@ -36,6 +36,26 @@
             echo "<br/>";
 
             echo "Friends: ".$profile->m_friends->GetNumFriends();
+            echo "<br/><hr/>";
+            //friend hax
+            $friends = $profile->m_friends->GetFriendsList();
+            $friend0 = new SteamPlayer($friends[0]->ID);
+            $friend1 = new SteamPlayer($friends[1]->ID);
+            $friend2 = new SteamPlayer($friends[2]->ID);
+            echo "Friend Name: ".$friend0->GetName();
+            echo "<br/>";
+            echo "Friend Name: ".$friend1->GetName();
+            echo "<br/>";
+            echo "Friend Name: ".$friend2->GetName();
+            echo "<br/><hr/>";
+
+            for($i = 0; $i < $profile->m_games->GetNumGames(); ++$i)
+            {
+                $game = $profile->m_games->GetGame($i);
+                echo "<a href='".$game->GetLink()."'><img src='".$game->GetLogo()."'/></a>";
+                echo "Game: ".$game->GetName();
+                echo "<hr/>";
+            }
         }
         else
         {

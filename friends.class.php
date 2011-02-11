@@ -21,8 +21,8 @@ class SteamFriends
         foreach($data->friends->children() as $friend)
         {
             $t = new stdClass();
-            $t->ID = (double)$friend;
-            $this->m_friendsList[(double)$friend] = $t;
+            $t->ID = (string)$friend;
+            $this->m_friendsList[] = $t;
         }
     }
 
@@ -39,11 +39,6 @@ class SteamFriends
     public function GetFriendsList()
     {
         return $this->m_friendsList;
-    }
-
-    public function GetFriend($steamId)
-    {
-        return new SteamPlayer($steamId);
     }
 }
 
