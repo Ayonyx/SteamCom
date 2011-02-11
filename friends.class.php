@@ -1,23 +1,28 @@
 <?php
-/*  Friends
- *
- *  The friends object is used to parse information on a player's friends list.
- */
-class Friends 
-{
-    private $m_friendsList;
 
-    function __construct($xmldata)
+class SteamFriends
+{
+    private $m_szUsername;
+    private $m_friendsList; //array of SteamPlayer class.
+
+    function __construct($username)
     {
-        $this->ParseFriends($xmldata);
+        $this->m_szUsername = $username;
+        $this->Build();
     }
 
-    private function ParseFriends($xmldata)
+    private function Build()
     {
-        foreach($xmldata->friends->children() as $friend)
+        $url = sprintf("http://%s/%s/%s//friends/?xml=1", SteamCom::$m_szHost,
+                        is_numeric($this->m_szUsername) ? "profiles" : "id",
+                        $this->m_szUsername);
+
+        $data = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
+        foreach($data->friends->children() as $friend)
         {
-            $t->ID = (string)$friend;
-            $this->m_friendsList[] = $t;
+            $t = new stdClass();
+            $t->ID = (double)$friend;
+            $this->m_friendsList[(double)$friend] = $t;
         }
     }
 
@@ -34,6 +39,11 @@ class Friends
     public function GetFriendsList()
     {
         return $this->m_friendsList;
+    }
+
+    public function GetFriend($steamId)
+    {
+        return new SteamPlayer($steamId);
     }
 }
 

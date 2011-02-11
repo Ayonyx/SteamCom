@@ -20,14 +20,15 @@ class PublicStates
     const P_PRIVATE = "private";
 };
 
-class Player
+class SteamPlayer
 {
+    private $m_szUsername;
     private $m_szName;
     private $m_nId;
     private $m_szState;
     private $m_szStateMsg;
     private $m_aAvatars = array();
-    private $m_szMemberdate;
+    private $m_szMemberDate;
     private $m_nRating;
     private $m_nHours2wk;
     private $m_bPublic;
@@ -36,24 +37,33 @@ class Player
     private $m_szSumamry;
     private $m_szRealname;
 
-    function __construct($data)
+    function __construct($username)
     {
-        if(is_array($data))
-        {
-            $this->m_szName         = $data['steamID'];
-            $this->m_nId            = $data['steamID64'];
-            $this->m_szState        = $data['onlineState'];
-            $this->m_szStateMsg     = $data['stateMessage'];
-            $this->m_bPublic        = ($data['privacyState'] != PublicStates::P_PRIVATE);
-            $this->SetAvatar($data['avatarIcon']);
-            $this->m_szMemberdate   = $data['memberSince'];
-            $this->m_nRating        = $data['steamRating'];
-            $this->m_nHours2wk      = $data['hoursPlayed2Wk'];
-            $this->m_szHeadline     = $data['headline'];
-            $this->m_szLocation     = $data['location'];
-            $this->m_szSumamry      = $data['summary'];
-            $this->m_szRealname     = $data['realname'];
-        }
+        $this->m_szUsername = $username;
+        $this->Build();
+    }
+
+    private function Build()
+    {
+        $url = sprintf("http://%s/%s/%s/?xml=1", SteamCom::$m_szHost,
+                        is_numeric($this->m_szUsername) ? "profiles" : "id",
+                        $this->m_szUsername);
+
+        $data = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $this->m_szName         = (string)$data->steamID;
+        $this->m_nId            = (double)$data->steamID64;
+        $this->m_szState        = (string)$data->onlineState;
+        $this->m_szStateMsg     = (string)$data->stateMessage;
+        $this->SetAvatar($data->avatarIcon);
+        $this->m_szMemberDate   = (string)$data->memberSince;
+        $this->m_nRating        = (float)$data->steamRating;
+        $this->m_nHours2wk      = (float)$data->hoursPlayed2Wk;
+        $this->m_bPublic        = ($data->privacyState == PublicStates::P_PUBLIC);
+        $this->m_szHeadline     = (string)$data->headline;
+        $this->m_szLocation     = (string)$data->location;
+        $this->m_szSumamry      = (string)$data->summary;
+        $this->m_szRealname     = (string)$data->realname;
     }
 	
     private function SetAvatar($url)
@@ -97,7 +107,7 @@ class Player
     //returns timestamp
     public function GetJoinDate()
     {
-        return $this->m_szMemberdate;
+        return $this->m_szMemberDate;
     }
 	
     //returns float
