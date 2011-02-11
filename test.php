@@ -39,9 +39,9 @@
             echo "<br/><hr/>";
             //friend hax
             $friends = $profile->m_friends->GetFriendsList();
-            $friend0 = new SteamPlayer($friends[0]->ID);
-            $friend1 = new SteamPlayer($friends[1]->ID);
-            $friend2 = new SteamPlayer($friends[2]->ID);
+            $friend0 = new SteamPlayer($friends[0]);
+            $friend1 = new SteamPlayer($friends[1]);
+            $friend2 = new SteamPlayer($friends[2]);
             echo "Friend Name: ".$friend0->GetName();
             echo "<br/>";
             echo "Friend Name: ".$friend1->GetName();

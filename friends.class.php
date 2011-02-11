@@ -20,9 +20,7 @@ class SteamFriends
         $data = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
         foreach($data->friends->children() as $friend)
         {
-            $t = new stdClass();
-            $t->ID = (string)$friend;
-            $this->m_friendsList[] = $t;
+            $this->m_friendsList[] = (string)$friend;
         }
     }
 

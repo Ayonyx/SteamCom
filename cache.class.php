@@ -36,8 +36,7 @@ class SteamCache
 
             if(!((time() - filemtime($filename)) > $age))
             {
-                $temp = file_get_contents($filename);
-                $data = unserialize($temp);
+                $data = unserialize(file_get_contents($filename));
                 return TRUE;
             }
             else

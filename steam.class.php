@@ -18,9 +18,10 @@ class SteamCom
     function __construct($username)
     {
         $this->m_cache = new SteamCache();
-        
+
+        //TODO: fix cache
         //check if we've cached this players information?
-        if(!$this->m_cache->GetPlayer($this->m_szUsername, $data, 120))
+        //if(!$this->m_cache->GetPlayer($username, $data, 120))
         {
             //request live information
             $this->m_player = new SteamPlayer($username);
@@ -36,15 +37,15 @@ class SteamCom
                 $this->m_friends	= NULL;
             }
 
-            $this->m_cache->SavePlayer($this->m_player, $this->m_games, $this->m_friends);
+            //$this->m_cache->SavePlayer($this->m_player, $this->m_games, $this->m_friends);
         }
-        else
+        /*else
         {
             //restore from cache
             $this->m_player     = $data['player'];
             $this->m_games      = $data['games'];
             $this->m_friends    = $data['friends'];
-        }
+        }*/
     }
 
 }
