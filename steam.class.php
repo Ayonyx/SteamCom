@@ -33,8 +33,10 @@ class SteamCom
 
         $this->m_szUsername = $username;
 
+        //check if we've cached this players information?
         if(!$this->m_cache->GetPlayer($this->m_szUsername, $data, 2 * 60))
         {
+            //request live information
             $this->m_player = $this->GetProfileData();
 
             if($this->m_player->IsPublic())
@@ -54,6 +56,7 @@ class SteamCom
         }
         else
         {
+            //restore from cache
             $this->m_player     = $data['player'];
             $this->m_games      = $data['games'];
             $this->m_friends    = $data['friends'];
